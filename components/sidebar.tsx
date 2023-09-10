@@ -19,13 +19,13 @@ const routes = [
     color: "text-sky-500"
   },
   {
-    label: 'Conversation',
+    label: 'SEO Aracı',
     icon: MessageSquare,
     href: '/conversation',
     color: "text-violet-500",
   },
   {
-    label: 'Image Generation',
+    label: 'Görsel Oluşturucu',
     icon: ImageIcon,
     color: "text-pink-700",
     href: '/image',
@@ -37,13 +37,13 @@ const routes = [
     href: '/video',
   },
   {
-    label: 'Code Generation',
+    label: 'Kod Oluşturucu',
     icon: Code,
     color: "text-green-700",
     href: '/code',
   },
   {
-    label: 'Settings',
+    label: 'Ayarlar',
     icon: Settings,
     href: '/settings',
   },
