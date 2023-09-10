@@ -6,26 +6,26 @@ const testimonials = [
   {
     name: "Joel",
     avatar: "J",
-    title: "Software Engineer",
-    description: "This is the best application I've ever used!",
+    title: "Yazılım mühendisi",
+    description: "Bu şimdiye kadar kullandığım en iyi uygulama!",
   },
   {
     name: "Antonio",
     avatar: "A",
-    title: "Designer",
-    description: "I use this daily for generating new photos!",
+    title: "Mağaza yöneticisi",
+    description: "Bunu her gün yeni fotoğraflar oluşturmak için kullanıyorum!",
   },
   {
     name: "Mark",
     avatar: "M",
     title: "CEO",
-    description: "This app has changed my life, cannot imagine working without it!",
+    description: "Bu uygulama hayatımı değiştirdi, onsuz çalışmayı hayal edemiyorum!",
   },
   {
     name: "Mary",
     avatar: "M",
     title: "CFO",
-    description: "The best in class, definitely worth the premium subscription!",
+    description: "Sınıfının en iyisi, kesinlikle premium aboneliğe değer!",
   },
 ];
 
