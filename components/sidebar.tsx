@@ -13,7 +13,7 @@ const poppins = Montserrat ({ weight: '600', subsets: ['latin'] });
 
 const routes = [
   {
-    label: 'Araçlar',
+    label: 'Dashboard',
     icon: LayoutDashboard,
     href: '/dashboard',
     color: "text-sky-500"
