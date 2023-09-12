@@ -17,7 +17,7 @@ export const LandingHero = () => {
           <TypewriterComponent
             options={{
               strings: [
-                "Seotool Aracı.",
+                "SEO tool Aracı.",
                 "Ürün görseli oluştur.",
                 "Açıklama oluştur.",
                 "Başlık oluştur."
