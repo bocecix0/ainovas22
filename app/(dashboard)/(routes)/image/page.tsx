@@ -1,77 +1,103 @@
-"use client";
+'use client'
 
-import * as z from "zod";
-import axios from "axios";
-import Image from "next/image";
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Download, ImageIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import * as z from 'zod'
+import axios from 'axios'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Download, ImageIcon } from 'lucide-react'
+import { set, useForm } from 'react-hook-form'
+import { toast } from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
-import { Heading } from "@/components/heading";
-import { Button } from "@/components/ui/button";
-import { Card, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { Loader } from "@/components/loader";
-import { Empty } from "@/components/ui/empty";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useProModal } from "@/hooks/use-pro-modal";
+import { Heading } from '@/components/heading'
+import { Button } from '@/components/ui/button'
+import { Card, CardFooter } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
+import { Loader } from '@/components/loader'
+import { Empty } from '@/components/ui/empty'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { useProModal } from '@/hooks/use-pro-modal'
 
-import { amountOptions, formSchema, resolutionOptions } from "./constants";
+import {
+  amountOptions,
+  formSchema,
+  typeOptions,
+  resolutionOptions
+} from './constants'
+import Dropzone from '@/components/shared/Dropzone'
 
 const PhotoPage = () => {
-  const proModal = useProModal();
-  const router = useRouter();
-  const [photos, setPhotos] = useState<string[]>([]);
+  const proModal = useProModal()
+  const router = useRouter()
+  const [photos, setPhotos] = useState<string[]>([])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      prompt: "",
-      amount: "1",
-      resolution: "512x512"
+      prompt: '',
+      imgUrl: '',
+      amount: '1',
+      type: 'create',
+      resolution: '512x512'
     }
-  });
+  })
 
-  const isLoading = form.formState.isSubmitting;
+  const isLoading = form.formState.isSubmitting
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setPhotos([]);
+      setPhotos([])
 
-      const response = await axios.post('/api/image', values);
+      const response = await axios.post('/api/image', values)
 
-      const urls = response.data.map((image: { url: string }) => image.url);
+      const urls = response.data.map((image: { url: string }) => image.url)
 
-      setPhotos(urls);
+      setPhotos(urls)
     } catch (error: any) {
       if (error?.response?.status === 403) {
-        proModal.onOpen();
+        proModal.onOpen()
       } else {
-        toast.error("Something went wrong.");
+        toast.error('Something went wrong.')
       }
     } finally {
-      router.refresh();
+      router.refresh()
     }
   }
 
-  return ( 
+  const [fileUrl, setFileURL] = useState<string>('')
+
+  useEffect(() => {
+    if (fileUrl) {
+      form.setValue('type', 'edit')
+      form.setValue('imgUrl', fileUrl)
+    }
+  }, [fileUrl])
+
+  return (
     <div>
       <Heading
-        title="Image Generation"
-        description="Turn your prompt into an image."
+        title='Image Generation'
+        description='Turn your prompt into an image.'
         icon={ImageIcon}
-        iconColor="text-pink-700"
-        bgColor="bg-pink-700/10"
+        iconColor='text-pink-700'
+        bgColor='bg-pink-700/10'
       />
-      <div className="px-4 lg:px-8">
+      <div className='px-4 lg:px-8'>
+        <div className='mb-5 p-2'>
+          <Dropzone className='' setFileURL={setFileURL} />
+        </div>
         <Form {...form}>
-          <form 
-            onSubmit={form.handleSubmit(onSubmit)} 
-            className="
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='
               rounded-lg 
               border 
               w-full 
@@ -82,17 +108,17 @@ const PhotoPage = () => {
               grid
               grid-cols-12
               gap-2
-            "
+            '
           >
             <FormField
-              name="prompt"
+              name='prompt'
               render={({ field }) => (
-                <FormItem className="col-span-12 lg:col-span-6">
-                  <FormControl className="m-0 p-0">
+                <FormItem className='col-span-12 lg:col-span-5'>
+                  <FormControl className='m-0 p-0'>
                     <Input
-                      className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
-                      disabled={isLoading} 
-                      placeholder="A picture of a horse in Swiss alps" 
+                      className='border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent'
+                      disabled={isLoading}
+                      placeholder='A picture of a horse in Swiss alps'
                       {...field}
                     />
                   </FormControl>
@@ -101,13 +127,13 @@ const PhotoPage = () => {
             />
             <FormField
               control={form.control}
-              name="amount"
+              name='amount'
               render={({ field }) => (
-                <FormItem className="col-span-12 lg:col-span-2">
-                  <Select 
-                    disabled={isLoading} 
-                    onValueChange={field.onChange} 
-                    value={field.value} 
+                <FormItem className='col-span-12 lg:col-span-2'>
+                  <Select
+                    disabled={isLoading}
+                    onValueChange={field.onChange}
+                    value={field.value}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -116,11 +142,8 @@ const PhotoPage = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {amountOptions.map((option) => (
-                        <SelectItem 
-                          key={option.value} 
-                          value={option.value}
-                        >
+                      {amountOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
                           {option.label}
                         </SelectItem>
                       ))}
@@ -131,13 +154,13 @@ const PhotoPage = () => {
             />
             <FormField
               control={form.control}
-              name="resolution"
+              name='type'
               render={({ field }) => (
-                <FormItem className="col-span-12 lg:col-span-2">
-                  <Select 
-                    disabled={isLoading} 
-                    onValueChange={field.onChange} 
-                    value={field.value} 
+                <FormItem className='col-span-12 lg:col-span-2'>
+                  <Select
+                    disabled={isLoading}
+                    onValueChange={field.onChange}
+                    value={field.value}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -146,11 +169,8 @@ const PhotoPage = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {resolutionOptions.map((option) => (
-                        <SelectItem 
-                          key={option.value} 
-                          value={option.value}
-                        >
+                      {typeOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
                           {option.label}
                         </SelectItem>
                       ))}
@@ -159,32 +179,64 @@ const PhotoPage = () => {
                 </FormItem>
               )}
             />
-            <Button className="col-span-12 lg:col-span-2 w-full" type="submit" disabled={isLoading} size="icon">
+            <FormField
+              control={form.control}
+              name='resolution'
+              render={({ field }) => (
+                <FormItem className='col-span-12 lg:col-span-2'>
+                  <Select
+                    disabled={isLoading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue defaultValue={field.value} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {resolutionOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <Button
+              className='col-span-12 lg:col-span-1 w-full'
+              type='submit'
+              disabled={isLoading}
+              size='icon'
+            >
               Generate
             </Button>
           </form>
         </Form>
         {isLoading && (
-          <div className="p-20">
+          <div className='p-20'>
             <Loader />
           </div>
         )}
         {photos.length === 0 && !isLoading && (
-          <Empty label="No images generated." />
+          <Empty label='No images generated.' />
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8">
-          {photos.map((src) => (
-            <Card key={src} className="rounded-lg overflow-hidden">
-              <div className="relative aspect-square">
-                <Image
-                  fill
-                  alt="Generated"
-                  src={src}
-                />
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8'>
+          {photos.map(src => (
+            <Card key={src} className='rounded-lg overflow-hidden'>
+              <div className='relative aspect-square'>
+                <Image fill alt='Generated' src={src} />
               </div>
-              <CardFooter className="p-2">
-                <Button onClick={() => window.open(src)} variant="secondary" className="w-full">
-                  <Download className="h-4 w-4 mr-2" />
+              <CardFooter className='p-2'>
+                <Button
+                  onClick={() => window.open(src)}
+                  variant='secondary'
+                  className='w-full'
+                >
+                  <Download className='h-4 w-4 mr-2' />
                   Download
                 </Button>
               </CardFooter>
@@ -193,7 +245,7 @@ const PhotoPage = () => {
         </div>
       </div>
     </div>
-   );
+  )
 }
- 
-export default PhotoPage;
+
+export default PhotoPage

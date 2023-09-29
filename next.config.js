@@ -2,11 +2,12 @@
 const nextConfig = {
   images: {
     domains: [
-      "googleusercontent.com",
-      "oaidalleapiprodscus.blob.core.windows.net",
-      "cdn.openai.com"
+      'googleusercontent.com',
+      'oaidalleapiprodscus.blob.core.windows.net',
+      'cdn.openai.com'
     ]
   },
+  experimental: { serverActions: true }
 }
 
 module.exports = nextConfig
