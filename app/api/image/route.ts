@@ -1,30 +1,19 @@
 import { auth } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-import { Configuration, OpenAIApi } from "openai";
 
 import { checkSubscription } from "@/lib/subscription";
 import { incrementApiLimit, checkApiLimit } from "@/lib/api-limit";
+import { createImage } from "@/lib/ai/openai";
+import { editImage } from "@/lib/ai/replicate";
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const openai = new OpenAIApi(configuration);
-
-export async function POST(
-  req: Request
-) {
+export async function POST(req: Request) {
   try {
     const { userId } = auth();
     const body = await req.json();
-    const { prompt, amount = 1, resolution = "512x512" } = body;
+    const { prompt, amount = 1, resolution = "512x512", type, imgUrl } = body;
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    if (!configuration.apiKey) {
-      return new NextResponse("OpenAI API Key not configured.", { status: 500 });
     }
 
     if (!prompt) {
@@ -43,22 +32,28 @@ export async function POST(
     const isPro = await checkSubscription();
 
     if (!freeTrial && !isPro) {
-      return new NextResponse("Free trial has expired. Please upgrade to pro.", { status: 403 });
+      return new NextResponse(
+        "Free trial has expired. Please upgrade to pro.",
+        { status: 403 }
+      );
     }
-
-    const response = await openai.createImage({
-      prompt,
-      n: parseInt(amount, 10),
-      size: resolution,
-    });
 
     if (!isPro) {
       await incrementApiLimit();
     }
 
-    return NextResponse.json(response.data.data);
+    let result;
+
+    switch (type) {
+      case "create":
+        result = createImage({ prompt, amount, resolution });
+      case "edit":
+        result = editImage({ prompt, amount, imgUrl, resolution });
+    }
+
+    return NextResponse.json(result);
   } catch (error) {
-    console.log('[IMAGE_ERROR]', error);
+    console.log("[IMAGE_ERROR]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
-};
+}
